@@ -1,6 +1,7 @@
 import { inject, injectable } from "tsyringe";
 
 import { IUsersRepository } from "../../../users/repositories/IUsersRepository";
+import { Statement } from "../../entities/Statement";
 import { IStatementsRepository } from "../../repositories/IStatementsRepository";
 import { GetStatementOperationError } from "./GetStatementOperationError";
 
@@ -19,7 +20,7 @@ export class GetStatementOperationUseCase {
     private statementsRepository: IStatementsRepository
   ) {}
 
-  async execute({ user_id, statement_id }: IRequest) {
+  async execute({ user_id, statement_id }: IRequest): Promise<Statement> {
     const user = await this.usersRepository.findById(user_id);
 
     if (!user) {

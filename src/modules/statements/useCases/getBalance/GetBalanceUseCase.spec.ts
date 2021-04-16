@@ -3,6 +3,7 @@ import { CreateUserUseCase } from "../../../users/useCases/createUser/CreateUser
 import { OperationType } from "../../entities/Statement";
 import { InMemoryStatementsRepository } from "../../repositories/in-memory/InMemoryStatementsRepository";
 import { CreateStatementUseCase } from "../createStatement/CreateStatementUseCase";
+import { GetBalanceError } from "./GetBalanceError";
 import { GetBalanceUseCase } from "./GetBalanceUseCase";
 
 let createUserUseCase: CreateUserUseCase;
@@ -53,5 +54,13 @@ describe("Get balance of the user", () => {
 
     expect(balance.statement.length).toBe(2);
     expect(balance.balance).toEqual(statement1.amount - statement2.amount);
+  });
+
+  it("should not be able to get balance of the non-exists user", async () => {
+    expect(async () => {
+      await getBalanceUseCase.execute({
+        user_id: "123456",
+      });
+    }).rejects.toBeInstanceOf(GetBalanceError);
   });
 });
