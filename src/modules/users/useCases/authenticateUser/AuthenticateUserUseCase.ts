@@ -2,7 +2,6 @@ import { compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import { inject, injectable } from "tsyringe";
 
-import authConfig from "../../../../config/auth";
 import { IUsersRepository } from "../../repositories/IUsersRepository";
 import { IAuthenticateUserResponseDTO } from "./IAuthenticateUserResponseDTO";
 import { IncorrectEmailOrPasswordError } from "./IncorrectEmailOrPasswordError";
@@ -35,11 +34,9 @@ export class AuthenticateUserUseCase {
       throw new IncorrectEmailOrPasswordError();
     }
 
-    const { secret, expiresIn } = authConfig.jwt;
-
-    const token = sign({ user }, secret, {
+    const token = sign({ user }, "6b8046e2a1c3ffb465389adc9fc38d6b", {
       subject: user.id,
-      expiresIn,
+      expiresIn: "1d",
     });
 
     return {
