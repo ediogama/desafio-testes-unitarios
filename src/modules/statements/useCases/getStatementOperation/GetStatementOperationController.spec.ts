@@ -5,7 +5,7 @@ import { app } from "../../../../app";
 
 let connection: Connection;
 
-describe("Create Statement Controller", () => {
+describe("Get Statement Operation Controller", () => {
   beforeAll(async () => {
     connection = await createConnection();
     await connection.runMigrations();
@@ -16,46 +16,7 @@ describe("Create Statement Controller", () => {
     await connection.close();
   });
 
-  it("should be able to create a new deposit statement for a user", async () => {
-    await request(app).post("/users").send({
-      name: "Name test",
-      email: "test@email.com.br",
-      password: "testPassword",
-    });
-
-    const responseToken = await request(app).post("/sessions").send({
-      email: "test@email.com.br",
-      password: "testPassword",
-    });
-
-    const { token } = responseToken.body;
-
-    const responseDeposit = await request(app)
-      .post("/statements/deposit")
-      .send({
-        amount: 300.0,
-        description: "Deposit Statement test",
-      })
-      .set({
-        Authorization: `Bearer ${token}`,
-      });
-
-    expect(responseDeposit.status).toBe(201);
-    expect(responseDeposit.body).toHaveProperty("id");
-  });
-
-  it("should not be able to create a new deposit statement for a non-exists user", async () => {
-    const responseDeposit = await request(app)
-      .post("/statements/deposit")
-      .send({
-        amount: 300.0,
-        description: "Deposit Statement test",
-      });
-
-    expect(responseDeposit.status).toBe(401);
-  });
-
-  it("should be able to create a new withdraw statement for a user", async () => {
+  it("should be able to get statement operation of the user", async () => {
     await request(app).post("/users").send({
       name: "Name test",
       email: "test@email.com.br",
@@ -89,22 +50,17 @@ describe("Create Statement Controller", () => {
         Authorization: `Bearer ${token}`,
       });
 
-    expect(responseWithdraw.status).toBe(201);
-    expect(responseWithdraw.body).toHaveProperty("id");
-  });
-
-  it("should not be able to create a new withdraw statement for a non-exists user", async () => {
-    const responseWithdraw = await request(app)
-      .post("/statements/withdraw")
-      .send({
-        amount: 150.0,
-        description: "Withdraw Statement test",
+    const responseGetStatementOperation = await request(app)
+      .get(`/statements/${responseWithdraw.body.id}`)
+      .send()
+      .set({
+        Authorization: `Bearer ${token}`,
       });
 
-    expect(responseWithdraw.status).toBe(401);
+    expect(responseGetStatementOperation.status).toBe(200);
   });
 
-  it("should not be able to create a new withdraw statement for a user with insufficient funds", async () => {
+  it("should not be able to get statement operation of a non-exists user", async () => {
     await request(app).post("/users").send({
       name: "Name test",
       email: "test@email.com.br",
@@ -131,13 +87,41 @@ describe("Create Statement Controller", () => {
     const responseWithdraw = await request(app)
       .post("/statements/withdraw")
       .send({
-        amount: 800.0,
+        amount: 150.0,
         description: "Withdraw test description",
       })
       .set({
         Authorization: `Bearer ${token}`,
       });
 
-    expect(responseWithdraw.status).toBe(400);
+    const responseGetStatementOperation = await request(app)
+      .get(`/statements/${responseWithdraw.body.id}`)
+      .send();
+
+    expect(responseGetStatementOperation.status).toBe(401);
+  });
+
+  it("should not be able to get statement operation of a non-exists statement", async () => {
+    await request(app).post("/users").send({
+      name: "Name test",
+      email: "test@email.com.br",
+      password: "testPassword",
+    });
+
+    const responseToken = await request(app).post("/sessions").send({
+      email: "test@email.com.br",
+      password: "testPassword",
+    });
+
+    const { token } = responseToken.body;
+
+    const responseGetStatementOperation = await request(app)
+      .get(`/statements/dd084efa-44ab-4392-b5fb-bb3b60cc0250`)
+      .send()
+      .set({
+        Authorization: `Bearer ${token}`,
+      });
+
+    expect(responseGetStatementOperation.status).toBe(404);
   });
 });

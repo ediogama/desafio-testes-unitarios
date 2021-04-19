@@ -50,20 +50,10 @@ export class StatementsRepository implements IStatementsRepository {
 
     const balance = statement.reduce((acc, operation) => {
       if (operation.type === "deposit") {
-        console.log(`acc deposit => ${acc}`);
-        console.log(
-          `Operation.amount => ${operation.amount} acc + operation.amount = ${
-            acc + operation.amount
-          }`
-        );
-
-        return acc + operation.amount;
+        return acc + Number(operation.amount);
       }
-      console.log(`acc withdraw => ${acc}`);
-      return acc - operation.amount;
+      return acc - Number(operation.amount);
     }, 0);
-
-    console.log(`Esse é o balance repository => ${balance}`);
 
     if (with_statement) {
       return {
